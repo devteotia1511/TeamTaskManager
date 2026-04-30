@@ -1,9 +1,14 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"
+watchPatterns = ["Dockerfile", "server/**", "src/**", "package*.json"]
 
 [deploy]
 healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
+numReplicas = 1
+
+[environments.production.deploy]
+numReplicas = 1

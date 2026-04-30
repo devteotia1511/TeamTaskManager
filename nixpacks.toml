@@ -1,0 +1,3 @@
+[build]
+# Disable nixpacks auto-detection - we use Dockerfile
+disabled = true
