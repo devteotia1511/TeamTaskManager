@@ -58,12 +58,17 @@ app.use((err, req, res, next) => {
 
 // Serve static files from the React frontend build in production
 if (process.env.NODE_ENV === 'production') {
-  const parentDir = path.resolve(__dirname, '..');
-  app.use(express.static(path.join(parentDir, 'dist')));
+  // In Docker: dist is at /dist, server is at /app
+  // In regular deploy: dist is at parent of server
+  const distPath = process.env.DOCKER_ENV === 'true'
+    ? '/dist'
+    : path.resolve(__dirname, '..', 'dist');
+
+  app.use(express.static(distPath));
 
   // Handle React routing, return all requests to React app
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(parentDir, 'dist', 'index.html'));
+    res.sendFile(path.resolve(distPath, 'index.html'));
   });
 } else {
   // 404 handler for API only in development
