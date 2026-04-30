@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import connectDB from './config/db.js';
 
 // Import routes
@@ -42,9 +43,14 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// Health check endpoint
+// Health check endpoints
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Team Task Manager Server is running' });
+});
+
+// Root health check for Railway default healthcheck
+app.get('/', (req, res) => {
+  res.json({ status: 'OK', message: 'Team Task Manager API Server' });
 });
 
 // Error handling middleware
@@ -56,14 +62,25 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Serve static files from the React frontend build in production
-if (process.env.NODE_ENV === 'production') {
-  // In Docker: dist is at /dist, server is at /app
-  // In regular deploy: dist is at parent of server
-  const distPath = process.env.DOCKER_ENV === 'true'
-    ? '/dist'
-    : path.resolve(__dirname, '..', 'dist');
+// Serve static files from the React frontend build
+// Check multiple possible locations for the dist folder
+const possibleDistPaths = [
+  '/dist',                                            // Docker layout
+  path.resolve(__dirname, '..', 'dist'),             // Local: server/../dist
+  path.resolve(__dirname, '..', '..', 'dist'),     // Railway alternative
+  path.resolve(process.cwd(), 'dist'),              // Current working dir
+];
 
+let distPath = null;
+for (const testPath of possibleDistPaths) {
+  if (fs.existsSync(testPath)) {
+    distPath = testPath;
+    console.log(`Found dist folder at: ${distPath}`);
+    break;
+  }
+}
+
+if (distPath) {
   app.use(express.static(distPath));
 
   // Handle React routing, return all requests to React app
@@ -71,7 +88,8 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.resolve(distPath, 'index.html'));
   });
 } else {
-  // 404 handler for API only in development
+  console.log('WARNING: No dist folder found. Static files will not be served.');
+  // 404 handler for API only
   app.use((req, res) => {
     res.status(404).json({ success: false, message: 'Route not found' });
   });
