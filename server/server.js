@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 
 // Import routes
@@ -12,20 +14,28 @@ import taskRoutes from './routes/task.routes.js';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Connect to MongoDB
 connectDB();
 
 // Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
-}));
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? [process.env.CLIENT_URL, process.env.RAILWAY_STATIC_URL, 'https://*.up.railway.app'].filter(Boolean)
+    : ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
@@ -46,10 +56,21 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
-});
+// Serve static files from the React frontend build in production
+if (process.env.NODE_ENV === 'production') {
+  const parentDir = path.resolve(__dirname, '..');
+  app.use(express.static(path.join(parentDir, 'dist')));
+
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(parentDir, 'dist', 'index.html'));
+  });
+} else {
+  // 404 handler for API only in development
+  app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'Route not found' });
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 
