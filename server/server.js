@@ -73,9 +73,11 @@ const possibleDistPaths = [
 
 let distPath = null;
 for (const testPath of possibleDistPaths) {
+  console.log(`Checking for dist at: ${testPath}`);
   if (fs.existsSync(testPath)) {
     distPath = testPath;
     console.log(`Found dist folder at: ${distPath}`);
+    console.log(`Dist contents:`, fs.readdirSync(testPath));
     break;
   }
 }
