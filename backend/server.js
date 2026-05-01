@@ -62,46 +62,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Serve static files from the React frontend build
-// Check multiple possible locations for the dist folder
-const possibleDistPaths = [
-  path.resolve(__dirname, 'dist'),                  // Docker layout: backend/./dist
-  path.resolve(__dirname, '..', 'dist'),             // Alternative: backend/../dist
-  '/dist',                                            // Alternative Docker layout
-  path.resolve(process.cwd(), 'dist'),              // Current working dir
-];
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, 'dist')));
 
-let distPath = null;
-for (const testPath of possibleDistPaths) {
-  console.log(`Checking for dist at: ${testPath}`);
-  if (fs.existsSync(testPath)) {
-    distPath = testPath;
-    console.log(`Found dist folder at: ${distPath}`);
-    console.log(`Dist contents:`, fs.readdirSync(testPath));
-    break;
-  }
-}
+// Catch-all: send React app for any non-API route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
-if (distPath) {
-  console.log(`Serving static files from: ${distPath}`);
-  app.use(express.static(distPath));
+const PORT = process.env.PORT || 8080;
 
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    console.log(`Serving index.html from: ${path.resolve(distPath, 'index.html')}`);
-    res.sendFile(path.resolve(distPath, 'index.html'));
-  });
-} else {
-  console.log('WARNING: No dist folder found. Static files will not be served.');
-  // 404 handler for API only
-  app.use((req, res) => {
-    res.status(404).json({ success: false, message: 'Route not found' });
-  });
-}
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`=================================`);
   console.log(` Team Task Manager Server running on port ${PORT}`);
   console.log(` API: http://localhost:${PORT}/api`);

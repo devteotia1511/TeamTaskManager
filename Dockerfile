@@ -31,7 +31,7 @@ COPY --from=frontend-builder /app/frontend/dist ./dist
 # Set environment
 ENV NODE_ENV=production
 ENV DOCKER_ENV=true
-ENV PORT=8080
+# Let Railway inject PORT at runtime
 
 # Expose port
 EXPOSE 8080
