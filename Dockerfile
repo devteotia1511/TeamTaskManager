@@ -31,14 +31,14 @@ COPY --from=frontend-builder /app/dist ../dist
 # Set environment
 ENV NODE_ENV=production
 ENV DOCKER_ENV=true
-ENV PORT=5000
+ENV PORT=8080
 
 # Expose port
-EXPOSE 5000
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/ || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
 
 # Start the server
 CMD ["node", "server.js"]
