@@ -48,7 +48,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static frontend files FIRST
-app.use(express.static(path.join(__dirname, '..', 'dist')));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Health check endpoints
 app.get('/api/health', (req, res) => {
@@ -73,7 +73,7 @@ app.use((err, req, res, next) => {
 
 // Catch-all: send React app for any non-API route (must be LAST)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // Server already started above with MongoDB connection handled

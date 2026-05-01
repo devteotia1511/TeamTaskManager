@@ -4,7 +4,7 @@ dockerfilePath = "Dockerfile"
 watchPatterns = ["Dockerfile", "backend/**", "frontend/**", "package*.json"]
 
 [deploy]
-healthcheckPath = "/"
+healthcheckPath = "/api/health"
 healthcheckTimeout = 120
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3

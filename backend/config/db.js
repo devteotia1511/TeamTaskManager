@@ -15,7 +15,7 @@ const connectDB = async () => {
   } catch (error) {
     console.error(`Error: ${error.message}`);
     console.error('MongoDB connection failed. Please check your MONGODB_URI in .env file');
-    process.exit(1);
+    // Don't exit - let server continue running
   }
 };
 
