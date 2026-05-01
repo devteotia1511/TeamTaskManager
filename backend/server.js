@@ -83,10 +83,12 @@ for (const testPath of possibleDistPaths) {
 }
 
 if (distPath) {
+  console.log(`Serving static files from: ${distPath}`);
   app.use(express.static(distPath));
 
   // Handle React routing, return all requests to React app
   app.get('*', (req, res) => {
+    console.log(`Serving index.html from: ${path.resolve(distPath, 'index.html')}`);
     res.sendFile(path.resolve(distPath, 'index.html'));
   });
 } else {
