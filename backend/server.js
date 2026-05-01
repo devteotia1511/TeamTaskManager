@@ -20,14 +20,25 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Connect to MongoDB
-connectDB();
+// Start server first, then connect to MongoDB
+const PORT = process.env.PORT || 8080;
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`=================================`);
+  console.log(` Team Task Manager Server running on port ${PORT}`);
+  console.log(` API: http://localhost:${PORT}/api`);
+  console.log(`=================================`);
+});
+
+// Connect to MongoDB asynchronously (don't crash if it fails)
+connectDB().catch(err => {
+  console.error('MongoDB connection failed, but server continues running:', err.message);
+});
 
 // Middleware
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
     ? [process.env.CLIENT_URL, process.env.RAILWAY_STATIC_URL, 'https://*.up.railway.app'].filter(Boolean)
-    : ['http://localhost:5173', 'http://localhost:3000'],
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -63,18 +74,11 @@ app.use((err, req, res, next) => {
 });
 
 // Serve static frontend files
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // Catch-all: send React app for any non-API route
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
-const PORT = process.env.PORT || 8080;
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`=================================`);
-  console.log(` Team Task Manager Server running on port ${PORT}`);
-  console.log(` API: http://localhost:${PORT}/api`);
-  console.log(`=================================`);
-});
+// Server already started above with MongoDB connection handled
