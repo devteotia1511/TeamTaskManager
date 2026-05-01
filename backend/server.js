@@ -47,22 +47,20 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/teams', teamRoutes);
-app.use('/api/tasks', taskRoutes);
+// Serve static frontend files FIRST
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // Health check endpoints
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Team Task Manager Server is running' });
 });
 
-// Root health check for Railway
-app.get('/', (req, res) => {
-  res.json({ status: 'OK', message: 'Team Task Manager Server is running', port: PORT });
-});
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -73,10 +71,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '..', 'dist')));
-
-// Catch-all: send React app for any non-API route
+// Catch-all: send React app for any non-API route (must be LAST)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
