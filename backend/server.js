@@ -32,12 +32,13 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 // Connect to MongoDB asynchronously (don't crash if it fails)
 connectDB().catch(err => {
   console.error('MongoDB connection failed, but server continues running:', err.message);
+  // Don't exit - let server continue even without MongoDB
 });
 
 // Middleware
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? [process.env.CLIENT_URL, process.env.RAILWAY_STATIC_URL, 'https://*.up.railway.app'].filter(Boolean)
+    ? [process.env.CLIENT_URL, 'https://teamtaskmanager.vercel.app', 'https://*.vercel.app'].filter(Boolean)
     : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
