@@ -59,9 +59,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Team Task Manager Server is running' });
 });
 
-// Root health check for Railway default healthcheck
+// Root health check for Railway
 app.get('/', (req, res) => {
-  res.json({ status: 'OK', message: 'Team Task Manager API Server' });
+  res.json({ status: 'OK', message: 'Team Task Manager Server is running', port: PORT });
 });
 
 // Error handling middleware
