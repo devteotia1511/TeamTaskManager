@@ -26,7 +26,7 @@ RUN npm ci --only=production
 COPY server/ ./
 
 # Copy built frontend from stage 1
-COPY --from=frontend-builder /app/dist ../dist
+COPY --from=frontend-builder /app/dist ./dist
 
 # Set environment
 ENV NODE_ENV=production
