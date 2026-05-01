@@ -65,8 +65,8 @@ app.use((err, req, res, next) => {
 // Serve static files from the React frontend build
 // Check multiple possible locations for the dist folder
 const possibleDistPaths = [
-  '/dist',                                            // Docker layout
-  path.resolve(__dirname, '..', 'dist'),             // Local: server/../dist
+  path.resolve(__dirname, '..', 'dist'),             // Docker layout: server/../dist
+  '/dist',                                            // Alternative Docker layout
   path.resolve(__dirname, '..', '..', 'dist'),     // Railway alternative
   path.resolve(process.cwd(), 'dist'),              // Current working dir
 ];
